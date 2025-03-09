@@ -1,34 +1,51 @@
-"use client"
-// import { Button } from "@/components/ui/button";
-import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs";
-// import { useEffect, useState } from "react";
-
-// import { Button } from "./ui/button";
-// import { BriefcaseBusiness, Heart, PenBox } from "lucide-react";
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  SignedOut,
+  SignedIn,
+  UserButton,
+  useUser,
+  SignIn,
+} from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { BriefcaseBusiness, Heart, PenBox } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const RootHeader = () => {
-//   const [showSignIn, setShowSignIn] = useState(false);
-
-
+  const [showSignIn, setShowSignIn] = useState(false);
+  const { user } = useUser();
+  const search = useSearchParams();
+  useEffect(() => {
+    if (search.get("sign-in")) {
+      setShowSignIn(true);
+    }
+  }, [search]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleOverlayClick = (e: any) => {
+    if (e.target === e.currentTarget) {
+      setShowSignIn(false);
+      window.history.replaceState(null, '', '/');
+    }
+  };
 
   return (
     <>
       <nav className="py-4 flex justify-between items-center">
         <Link href="/">
-          <Image src="/logo.png" alt="Hirrd Logo" height={40} width={80}/>
+          <Image src="/logo.png" alt="Hirrd Logo" height={40} width={80} />
         </Link>
 
         <div className="flex gap-8">
-          {/* <SignedOut>
+          <SignedOut>
             <Button variant="outline" onClick={() => setShowSignIn(true)}>
               Login
             </Button>
           </SignedOut>
           <SignedIn>
             {user?.unsafeMetadata?.role === "recruiter" && (
-              <Link to="/post-job">
+              <Link href="/post-job">
                 <Button variant="destructive" className="rounded-full">
                   <PenBox size={20} className="mr-2" />
                   Post a Job
@@ -56,27 +73,21 @@ const RootHeader = () => {
                 <UserButton.Action label="manageAccount" />
               </UserButton.MenuItems>
             </UserButton>
-          </SignedIn> */}
-           <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-           {/* <Button variant="outline" >
-              Login
-            </Button> */}
+          </SignedIn>
         </div>
       </nav>
 
-      {/* {showSignIn && (
+      {showSignIn && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-          
+          className="fixed inset-0 flex items-center justify-center  bg-opacity-100"
+          onClick={handleOverlayClick}
         >
-          
+          <SignIn
+            signUpForceRedirectUrl="/onboarding"
+            fallbackRedirectUrl="/onboarding"
+          />
         </div>
-      )} */}
+      )}
     </>
   );
 };
